@@ -1,20 +1,45 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import { mockStartups } from "@/data/mock-startups";
 
 export default function Home() {
   const startups = mockStartups;
-  const activeFilters = {
-    sector: "All",
-    stage: "All",
-  };
+  const [sectorFilter, setSectorFilter] = useState("All");
+  const [stageFilter, setStageFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
-  const filteredStartups = startups.filter((startup) => {
-    const matchesSector =
-      activeFilters.sector === "All" || startup.sector === activeFilters.sector;
-    const matchesStage =
-      activeFilters.stage === "All" || startup.stage === activeFilters.stage;
+  const sectorOptions = useMemo(
+    () => ["All", ...Array.from(new Set(startups.map((startup) => startup.sector))).sort()],
+    [startups],
+  );
 
-    return matchesSector && matchesStage;
-  });
+  const stageOptions = useMemo(
+    () => ["All", ...Array.from(new Set(startups.map((startup) => startup.stage))).sort()],
+    [startups],
+  );
+
+  const filteredStartups = useMemo(() => {
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+
+    return startups
+      .filter((startup) => {
+        const matchesSector = sectorFilter === "All" || startup.sector === sectorFilter;
+        const matchesStage = stageFilter === "All" || startup.stage === stageFilter;
+        const matchesSearch =
+          normalizedSearch.length === 0 ||
+          startup.name.toLowerCase().includes(normalizedSearch);
+
+        return matchesSector && matchesStage && matchesSearch;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.last_reviewed_at).getTime();
+        const dateB = new Date(b.last_reviewed_at).getTime();
+
+        return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+      });
+  }, [searchQuery, sectorFilter, sortOrder, stageFilter, startups]);
 
   const reviewedThisWeek = startups.filter((startup) => {
     const reviewedDate = new Date(startup.last_reviewed_at);
@@ -29,8 +54,9 @@ export default function Home() {
 
   const summaryCards = [
     { title: "Total Startups", value: startups.length.toString() },
+    { title: "Matching Records", value: filteredStartups.length.toString() },
     { title: "Reviewed This Week", value: reviewedThisWeek.toString() },
-    { title: "Sectors Tracked", value: sectorsTracked.toString() },
+    { title: "Sectors Tracked", value: sectorsTracked.toString() }
   ];
 
   return (
@@ -44,7 +70,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => (
           <article
             key={card.title}
@@ -61,12 +87,57 @@ export default function Home() {
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">Filters</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
-            Sector: {activeFilters.sector}
-          </div>
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
-            Stage: {activeFilters.stage}
-          </div>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-slate-700">Search by startup name</span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="e.g. Anatolia Vision AI"
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+            />
+          </label>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-slate-700">Sector</span>
+            <select
+              value={sectorFilter}
+              onChange={(event) => setSectorFilter(event.target.value)}
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+            >
+              {sectorOptions.map((sector) => (
+                <option key={sector} value={sector}>
+                  {sector}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-slate-700">Stage</span>
+            <select
+              value={stageFilter}
+              onChange={(event) => setStageFilter(event.target.value)}
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+            >
+              {stageOptions.map((stage) => (
+                <option key={stage} value={stage}>
+                  {stage}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-slate-700">Sort by last reviewed</span>
+            <select
+              value={sortOrder}
+              onChange={(event) =>
+                setSortOrder(event.target.value as "newest" | "oldest")
+              }
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </label>
         </div>
       </section>
 
@@ -75,7 +146,7 @@ export default function Home() {
         {filteredStartups.length === 0 ? (
           <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
             <p className="text-base font-medium text-slate-800">
-              No startups match the current filters
+              No startups match the current filters and search
             </p>
             <p className="mt-1 text-sm text-slate-600">
               Try broadening the filter criteria to see more records.
