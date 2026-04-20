@@ -56,16 +56,16 @@ export default function Home() {
     { title: "Total Startups", value: startups.length.toString() },
     { title: "Matching Records", value: filteredStartups.length.toString() },
     { title: "Reviewed This Week", value: reviewedThisWeek.toString() },
-    { title: "Sectors Tracked", value: sectorsTracked.toString() }
+    { title: "Sectors Tracked", value: sectorsTracked.toString() },
   ];
 
   return (
-    <div className="space-y-6">
-      <section className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+    <div className="space-y-8">
+      <section className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
           Startup Dashboard
         </h1>
-        <p className="text-sm text-slate-600">
+        <p className="max-w-2xl text-sm leading-6 text-slate-600">
           AI startup landscape relevant to Türkiye for TRAI MVP screening.
         </p>
       </section>
@@ -74,19 +74,22 @@ export default function Home() {
         {summaryCards.map((card) => (
           <article
             key={card.title}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
           >
-            <p className="text-sm text-slate-500">{card.title}</p>
-            <p className="mt-2 text-2xl font-semibold text-slate-900">
+            <p className="text-sm font-medium text-slate-500">{card.title}</p>
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
               {card.value}
             </p>
           </article>
         ))}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-base font-semibold text-slate-900">Filters</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <p className="mt-1 text-sm text-slate-600">
+          Narrow results by name, sector, stage, and review date order.
+        </p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="space-y-1 text-sm">
             <span className="font-medium text-slate-700">Search by startup name</span>
             <input
@@ -94,7 +97,7 @@ export default function Home() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="e.g. Anatolia Vision AI"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
             />
           </label>
           <label className="space-y-1 text-sm">
@@ -102,7 +105,7 @@ export default function Home() {
             <select
               value={sectorFilter}
               onChange={(event) => setSectorFilter(event.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
             >
               {sectorOptions.map((sector) => (
                 <option key={sector} value={sector}>
@@ -116,7 +119,7 @@ export default function Home() {
             <select
               value={stageFilter}
               onChange={(event) => setStageFilter(event.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
             >
               {stageOptions.map((stage) => (
                 <option key={stage} value={stage}>
@@ -132,7 +135,7 @@ export default function Home() {
               onChange={(event) =>
                 setSortOrder(event.target.value as "newest" | "oldest")
               }
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-slate-900 outline-none ring-slate-300 transition focus:ring-2"
             >
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
@@ -141,30 +144,40 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900">Startup Grid</h2>
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-base font-semibold text-slate-900">Startup Grid</h2>
+          <p className="inline-flex w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+            Showing {filteredStartups.length} of {startups.length}
+          </p>
+        </div>
         {filteredStartups.length === 0 ? (
-          <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+          <div className="mt-5 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center sm:p-8">
             <p className="text-base font-medium text-slate-800">
-              No startups match the current filters and search
+              No startups match your current filters.
             </p>
             <p className="mt-1 text-sm text-slate-600">
-              Try broadening the filter criteria to see more records.
+              Clear one or more filters to see a broader list.
             </p>
           </div>
         ) : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredStartups.map((startup) => (
               <article
                 key={startup.id}
-                className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
               >
                 <h3 className="text-base font-semibold text-slate-900">
                   {startup.name}
                 </h3>
-                <p className="mt-1 text-sm text-slate-600">
-                  {startup.sector} · {startup.stage}
-                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                    {startup.sector}
+                  </span>
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                    {startup.stage}
+                  </span>
+                </div>
                 <p className="mt-3 text-sm text-slate-700">
                   {startup.short_description}
                 </p>
@@ -174,6 +187,18 @@ export default function Home() {
                   </span>{" "}
                   {startup.why_relevant_for_trai}
                 </p>
+                {startup.tags.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {startup.tags.map((tag) => (
+                      <span
+                        key={`${startup.id}-${tag}`}
+                        className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <p className="mt-3 text-xs text-slate-500">
                   Last reviewed:{" "}
                   {new Date(startup.last_reviewed_at).toLocaleDateString("en-GB")}

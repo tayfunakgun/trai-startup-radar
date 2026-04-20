@@ -117,19 +117,22 @@ export default function AddStartupPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <section className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+    <div className="space-y-8">
+      <section className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
           Add Startup
         </h1>
-        <p className="text-sm text-slate-600">
+        <p className="max-w-2xl text-sm leading-6 text-slate-600">
           Submit startup details for MVP demo input. Entries are temporary in this
           browser session only.
         </p>
+        <p className="inline-flex w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+          Session-only submit (no backend persistence)
+        </p>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700" htmlFor="name">
@@ -351,21 +354,22 @@ export default function AddStartupPage() {
 
           {(submitError || submitSuccess) && (
             <div
-              className={`rounded-md border px-3 py-2 text-sm ${
+              className={`rounded-md border px-4 py-3 text-sm ${
                 submitError
                   ? "border-rose-200 bg-rose-50 text-rose-700"
                   : "border-emerald-200 bg-emerald-50 text-emerald-700"
               }`}
               role="status"
             >
-              {submitError || submitSuccess}
+              <p className="font-medium">{submitError ? "Submission failed" : "Submission saved"}</p>
+              <p className="mt-1">{submitError || submitSuccess}</p>
             </div>
           )}
 
           <div className="flex justify-end">
             <button
               type="submit"
-              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+              className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white sm:w-auto"
             >
               Save Startup
             </button>
@@ -373,49 +377,58 @@ export default function AddStartupPage() {
         </form>
       </section>
 
-      {sessionSavedStartup && (
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-base font-semibold text-slate-900">
-            Latest Demo Submission
-          </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Stored temporarily in page state for demo purposes only.
-          </p>
-          <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
-            <p>
-              <span className="font-medium text-slate-900">Startup:</span>{" "}
-              {sessionSavedStartup.name}
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <h2 className="text-base font-semibold text-slate-900">Latest Demo Submission</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Stored temporarily in page state for demo purposes only.
+        </p>
+        {sessionSavedStartup ? (
+          <div className="mt-4 space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                {sessionSavedStartup.sector}
+              </span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                {sessionSavedStartup.stage}
+              </span>
+            </div>
+            <div className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+              <p>
+                <span className="font-medium text-slate-900">Startup:</span>{" "}
+                {sessionSavedStartup.name}
+              </p>
+              <p>
+                <span className="font-medium text-slate-900">Founder:</span>{" "}
+                {sessionSavedStartup.founder}
+              </p>
+              <p className="sm:col-span-2">
+                <span className="font-medium text-slate-900">Source:</span>{" "}
+                {safeSubmittedSourceUrl ? (
+                  <a
+                    href={safeSubmittedSourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-slate-900 underline"
+                  >
+                    {sessionSavedStartup.source_url}
+                  </a>
+                ) : (
+                  <span>{sessionSavedStartup.source_url}</span>
+                )}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+            <p className="text-sm font-medium text-slate-800">
+              No submission in this session yet.
             </p>
-            <p>
-              <span className="font-medium text-slate-900">Sector:</span>{" "}
-              {sessionSavedStartup.sector}
-            </p>
-            <p>
-              <span className="font-medium text-slate-900">Stage:</span>{" "}
-              {sessionSavedStartup.stage}
-            </p>
-            <p>
-              <span className="font-medium text-slate-900">Founder:</span>{" "}
-              {sessionSavedStartup.founder}
-            </p>
-            <p className="sm:col-span-2">
-              <span className="font-medium text-slate-900">Source:</span>{" "}
-              {safeSubmittedSourceUrl ? (
-                <a
-                  href={safeSubmittedSourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-slate-900 underline"
-                >
-                  {sessionSavedStartup.source_url}
-                </a>
-              ) : (
-                <span>{sessionSavedStartup.source_url}</span>
-              )}
+            <p className="mt-1 text-sm text-slate-600">
+              Complete the form and save to preview the latest entry here.
             </p>
           </div>
-        </section>
-      )}
+        )}
+      </section>
     </div>
   );
 }
