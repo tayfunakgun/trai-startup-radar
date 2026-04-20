@@ -33,6 +33,18 @@ const initialFormValues: FormValues = {
   score_collaboration: "",
 };
 
+const getSafeExternalUrl = (value: string) => {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.toString();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export default function AddStartupPage() {
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [submitError, setSubmitError] = useState("");
@@ -40,6 +52,9 @@ export default function AddStartupPage() {
   const [sessionSavedStartup, setSessionSavedStartup] = useState<Startup | null>(
     null,
   );
+  const safeSubmittedSourceUrl = sessionSavedStartup
+    ? getSafeExternalUrl(sessionSavedStartup.source_url)
+    : null;
 
   const handleFieldChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -64,6 +79,13 @@ export default function AddStartupPage() {
       .map((tag) => tag.trim())
       .filter(Boolean);
 
+    const safeSourceUrl = getSafeExternalUrl(formValues.source_url.trim());
+    if (!safeSourceUrl) {
+      setSubmitSuccess("");
+      setSubmitError("Source URL must start with http:// or https://.");
+      return;
+    }
+
     const startupForSession: Startup = {
       id: `tmp-${Date.now()}`,
       name: formValues.name.trim(),
@@ -72,7 +94,7 @@ export default function AddStartupPage() {
       founder: formValues.founder.trim(),
       short_description: formValues.short_description.trim(),
       why_relevant_for_trai: formValues.why_relevant_for_trai.trim(),
-      source_url: formValues.source_url.trim(),
+      source_url: safeSourceUrl,
       last_reviewed_at: formValues.last_reviewed_at,
       tags,
       score_ecosystem_fit: formValues.score_ecosystem_fit
@@ -378,14 +400,18 @@ export default function AddStartupPage() {
             </p>
             <p className="sm:col-span-2">
               <span className="font-medium text-slate-900">Source:</span>{" "}
-              <a
-                href={sessionSavedStartup.source_url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-slate-900 underline"
-              >
-                {sessionSavedStartup.source_url}
-              </a>
+              {safeSubmittedSourceUrl ? (
+                <a
+                  href={safeSubmittedSourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-slate-900 underline"
+                >
+                  {sessionSavedStartup.source_url}
+                </a>
+              ) : (
+                <span>{sessionSavedStartup.source_url}</span>
+              )}
             </p>
           </div>
         </section>
